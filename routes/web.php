@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,12 @@ Route::middleware('auth')->group(function () {
     Route::get('products-trash', [ProductController::class, 'trash'])->name('products.trash');
     Route::post('products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
     Route::delete('products/{id}/force-delete', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
+
+    Route::resource('sales', SaleController::class);
+
+    Route::get('sales-trash', [SaleController::class, 'trash'])->name('sales.trash');
+    Route::post('sales/{id}/restore', [SaleController::class, 'restore'])->name('sales.restore');
+    Route::delete('sales/{id}/force-delete', [SaleController::class, 'forceDelete'])->name('sales.forceDelete');
 });
 
 require __DIR__ . '/auth.php';

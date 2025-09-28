@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->date('sale_date');
-            $table->decimal('total')->default(0);
+            $table->decimal('total_price', 10, 2)->default(0);
             $table->softDeletes();
             $table->timestamps();
         });
