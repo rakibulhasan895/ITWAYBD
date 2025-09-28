@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->decimal('price');
+            $table->text('description')->nullable();
+            $table->unsignedBigInteger('added_by')->foreign('added_by')->references('id')->on('users')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

@@ -47,7 +47,7 @@ class UserController extends Controller
     public function trash()
     {
         $trashed = User::onlyTrashed()->paginate(10);
-        return view('users.trash', compact('trashed'));
+        return view('user.trash', compact('trashed'));
     }
 
     public function restore($id)

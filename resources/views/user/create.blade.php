@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
     <div class="container">
         <h3>Create User (Customer)</h3>
         @error('name')
@@ -50,4 +48,4 @@
             <a href="{{ route('users.index') }}" class="btn btn-secondary">Back</a>
         </form>
     </div>
-@endsection
+</x-app-layout>

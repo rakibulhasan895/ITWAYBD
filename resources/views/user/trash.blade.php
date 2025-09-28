@@ -1,6 +1,5 @@
-@extends('layouts.app')
+<x-app-layout>
 
-@section('content')
 <div class="container">
     <h3>Trashed Users</h3>
 
@@ -57,4 +56,5 @@
         {{ $trashed->links() }}
     </div>
 </div>
-@endsection
+
+</x-app-layout>
