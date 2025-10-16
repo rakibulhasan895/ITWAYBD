@@ -7,35 +7,55 @@ use App\Models\Sale;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class SaleController extends Controller
 {
+    // public function index(Request $request)
+    // {
+    //     $query = Sale::with('user', 'items.product');
+    //     if ($request->customer) {
+    //         $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$request->customer}%"));
+    //     }
+    //     if ($request->product) {
+    //         $query->whereHas('items.product', fn($q) => $q->where('name', 'like', "%{$request->product}%"));
+    //     }
+    //     if ($request->from && $request->to) {
+    //         $query->whereBetween('sale_date', [$request->from, $request->to]);
+    //     }
+    //     $sales = $query->paginate(10);
+    //     return view('sales.index', compact('sales'));
+    // }
     public function index(Request $request)
     {
-        $query = Sale::with('user', 'items.product');
+        // Unique cache key per filter + page
+        $cacheKey = 'sales_'
+            . ($request->customer ?? 'all') . '_'
+            . ($request->product ?? 'all') . '_'
+            . ($request->from ?? 'start') . '_'
+            . ($request->to ?? 'end') . '_page_' . ($request->page ?? 1);
 
+        $sales = Cache::tags('sales')->remember($cacheKey, now()->addMinutes(1), function () use ($request) {
+            $query = Sale::with('user', 'items.product')->orderBy('created_at', 'desc');
 
-        if ($request->customer) {
-            $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$request->customer}%"));
-        }
+            if ($request->customer) {
+                $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$request->customer}%"));
+            }
 
+            if ($request->product) {
+                $query->whereHas('items.product', fn($q) => $q->where('name', 'like', "%{$request->product}%"));
+            }
 
-        if ($request->product) {
-            $query->whereHas('items.product', fn($q) => $q->where('name', 'like', "%{$request->product}%"));
-        }
+            if ($request->from && $request->to) {
+                $query->whereBetween('sale_date', [$request->from, $request->to]);
+            }
 
-
-        if ($request->from && $request->to) {
-            $query->whereBetween('sale_date', [$request->from, $request->to]);
-        }
-
-
-        $sales = $query->paginate(10);
-
+            return $query->paginate(10);
+        });
 
         return view('sales.index', compact('sales'));
     }
-
     public function create()
     {
         $customers = User::all();
@@ -77,6 +97,10 @@ class SaleController extends Controller
                 'notable_type' => Sale::class,
             ]);
         }
+        Cache::tags('sales')->flush();
+
+        // return redirect()->route('sales.index')->with('success', 'Sale created successfully.');
+
         return response()->json(['success' => true, 'message' => 'Sale created successfully']);
     }
 
